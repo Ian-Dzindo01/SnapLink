@@ -9,6 +9,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+builder.Services.AddSingleton<IDatabase>(sp =>
+{
+    return redis.GetDatabase();
+});
+
 var app = builder.Build();
 
 app.UseDefaultFiles();
@@ -21,7 +27,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
