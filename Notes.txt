@@ -1,0 +1,1 @@
+- Add a check to ensure that a duplicate key that is generated from a different long URL is handled. One option might be to add a unique value to the hash input and re-hash.

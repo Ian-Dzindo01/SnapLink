@@ -14,12 +14,14 @@ public static class UrlShortener
             {
                 builder.Append(b.ToString("x2"));
             }
+
             return builder.ToString().Substring(0, 8);
         }
     }
 
     public static void StoreUrlInRedis(IDatabase db, string shortKey, string originalUrl)
     {
-        db.StringSet(shortKey, originalUrl);
+        TimeSpan expiry = TimeSpan.FromDays(7);
+        db.StringSet(shortKey, originalUrl, expiry);
     }
 }
