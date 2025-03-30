@@ -23,12 +23,18 @@ namespace SnapLink.Controllers
                 return BadRequest("Invalid URL");
             }
 
-            var shortKey = UrlShortener.GenerateShortKey(data.OriginalUrl);
+            string shortKey = string.IsNullOrEmpty(data.CustomAlias)
+                ? UrlShortener.GenerateShortKey(data.OriginalUrl)
+                : data.CustomAlias;
 
-            UrlShortener.StoreUrlInRedis(_db, shortKey, data.OriginalUrl);
+            if (await _db.KeyExistsAsync(shortKey))
+            {
+                return Conflict("This custom alias is already taken.");
+            }
 
-            var shortenedUrl = $"{Request.Scheme}://{Request.Host}/{shortKey}";
+            await _db.StringSetAsync(shortKey, data.OriginalUrl, TimeSpan.FromDays(7));
 
+            string shortenedUrl = $"{Request.Scheme}://{Request.Host}/{shortKey}";
             return Ok(new { ShortenedUrl = shortenedUrl });
         }
 
