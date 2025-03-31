@@ -15,6 +15,7 @@ namespace SnapLink.Controllers
             _db = db;
         }
 
+
         [HttpPost]
         public async Task<IActionResult> ShortenUrl([FromBody] ShortUrl data)
         {
@@ -37,6 +38,23 @@ namespace SnapLink.Controllers
             string shortenedUrl = $"{Request.Scheme}://{Request.Host}/{shortKey}";
             return Ok(new { ShortenedUrl = shortenedUrl });
         }
+
+
+        [HttpDelete("{shortKey}")]
+        public async Task<IActionResult> DeleteShortenedUrl(string shortKey)
+        {
+            bool exists = await _db.KeyExistsAsync(shortKey);
+
+            if (!exists)
+            {
+                return NotFound("The shortened URL does not exist.");
+            }
+
+            await _db.KeyDeleteAsync(shortKey);
+
+            return Ok();
+        }
+
 
         [HttpGet("{shortKey}")]
         public async Task<IActionResult> RedirectToOriginalUrl(string shortKey)
