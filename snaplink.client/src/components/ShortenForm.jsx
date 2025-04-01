@@ -1,55 +1,26 @@
 import { useState } from "react";
 
-export default function ShortenForm() {
-    const [originalUrl, setOriginalUrl] = useState("");
-    const [shortenedUrl, setShortenedUrl] = useState(null);
-    const [loading, setLoading] = useState(false);
+export default function HealthCheck() {
+    const [status, setStatus] = useState(null);
 
-    const handleShorten = async () => {
-        if (!originalUrl.trim()) {
-            alert("Please enter a valid URL.");
-            return;
-        }
-        setLoading(true);
+    const checkBackend = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/shortenurl", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ originalUrl }),
-            });
-            const data = await response.json();
+            const response = await fetch("http://localhost:5000/api/ShortenUrl/ping");
+            const data = await response.text();
             if (response.ok) {
-                setShortenedUrl(data.shortenedUrl);
+                setStatus(`Backend is running: ${data}`);
             } else {
-                alert(data.message || "Failed to shorten URL");
+                setStatus("Backend is not responding");
             }
         } catch (error) {
-            alert("Something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
+            setStatus("Error: Could not reach backend");
         }
     };
 
     return (
-        <div className="container">
-            <h2>SnapLink - URL Shortener</h2>
-            <input
-                type="text"
-                placeholder="Enter your URL here..."
-                value={originalUrl}
-                onChange={(e) => setOriginalUrl(e.target.value)}
-            />
-            <button onClick={handleShorten} disabled={loading}>
-                {loading ? "Shortening..." : "Shorten URL"}
-            </button>
-            {shortenedUrl && (
-                <div>
-                    <p>Shortened URL:</p>
-                    <a href={shortenedUrl} target="_blank" rel="noopener noreferrer">
-                        {shortenedUrl}
-                    </a>
-                </div>
-            )}
+        <div>
+            <button onClick={checkBackend}>Ping Backend</button>
+            {status && <p>{status}</p>}
         </div>
     );
 }

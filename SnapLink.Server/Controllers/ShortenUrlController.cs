@@ -15,6 +15,13 @@ namespace SnapLink.Controllers
             _db = db;
         }
 
+        // In your Controller (e.g., `ShortenUrlController`)
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok("Backend is running");
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> ShortenUrl([FromBody] ShortUrl data)
