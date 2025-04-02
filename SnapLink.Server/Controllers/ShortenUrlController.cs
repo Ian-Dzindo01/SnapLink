@@ -15,7 +15,6 @@ namespace SnapLink.Controllers
             _db = db;
         }
 
-        // In your Controller (e.g., `ShortenUrlController`)
         [HttpGet("ping")]
         public IActionResult Ping()
         {
@@ -31,14 +30,7 @@ namespace SnapLink.Controllers
                 return BadRequest("Invalid URL");
             }
 
-            string shortKey = string.IsNullOrEmpty(data.CustomAlias)
-                ? UrlShortener.GenerateShortKey(data.OriginalUrl)
-                : data.CustomAlias;
-
-            if (await _db.KeyExistsAsync(shortKey))
-            {
-                return Conflict("This custom alias is already taken.");
-            }
+            string shortKey = UrlShortener.GenerateShortKey(data.OriginalUrl);
 
             await _db.StringSetAsync(shortKey, data.OriginalUrl, TimeSpan.FromDays(7));
 
